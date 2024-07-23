@@ -46,11 +46,11 @@ class ObjectDetection(Node):
 
     def lidar_callback(self, msg):
          
-        start_angle = 0  # 원하는 각도 범위의 시작 값
-        end_angle = 30  # 원하는 각도 범위의 끝 값
+        start_angle = 80  # 원하는 각도 범위의 시작 값
+        end_angle = 150  # 원하는 각도 범위의 끝 값
         
-        range_min = 0.5  # 원하는 거리 범위의 최소값 [m]
-        range_max = 2.0  # 원하는 거리 범위의 최대값 [m]
+        range_min = 0.1  # 원하는 거리 범위의 최소값 [m]
+        range_max = 1.2  # 원하는 거리 범위의 최대값 [m]
 
         ranges = msg.ranges
 
