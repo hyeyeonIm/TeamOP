@@ -1,3 +1,4 @@
+
 '''
 키 조작
 
@@ -41,20 +42,20 @@ DATA_COLLECTION_PATH= os.path.dirname(real_path) + '/camera_perception_pkg/camer
 VARIBLE_RESISTOR_INPUT_PIN = 'A2'
 
 # 조향모터에 연결된 핀
-STEERING_PIN1 = 10
-STEERING_PIN2 = 12
+STEERING_PIN1 = 9
+STEERING_PIN2 = 8
 
 # 좌측 뒷바퀴에 연결된 핀
 LEFT_REAR_PIN1 = 3
-LEFT_REAR_PIN2 = 5
+LEFT_REAR_PIN2 = 2
 
 # 우측 뒷바퀴에 연결된 핀
-RIGHT_REAR_PIN1 = 6
-RIGHT_REAR_PIN2 = 8
+RIGHT_REAR_PIN1 = 5
+RIGHT_REAR_PIN2 = 6
 
 # 가변저항 최대 좌측값 & 최대 우측값
-VARIBLE_RESISTOR_MOST_LEFT = 450 
-VARIBLE_RESISTOR_MOST_RIGHT = 335
+VARIBLE_RESISTOR_MOST_LEFT = 795
+VARIBLE_RESISTOR_MOST_RIGHT = 673
 
 # ----------------------------------------------------
 

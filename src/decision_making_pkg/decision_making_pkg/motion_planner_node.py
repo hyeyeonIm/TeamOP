@@ -1,4 +1,5 @@
 import rclpy
+import math
 from rclpy.node import Node
 from rclpy.qos import QoSProfile
 from rclpy.qos import QoSHistoryPolicy
@@ -16,7 +17,7 @@ SUB_LIDAR_OBSTACLE_TOPIC_NAME = "lidar_obstacle_info"
 PUB_TOPIC_NAME = "topic_control_signal"
 
 # 모션 플랜 발행 주기 (초) - 소수점 필요 (int형은 반영되지 않음)
-TIMER = 0.1
+TIMER = 0.08
 
 class MotionPlanningNode(Node):
     def __init__(self):
@@ -48,6 +49,11 @@ class MotionPlanningNode(Node):
         self.steering_command = 0
         self.left_speed_command = 0
         self.right_speed_command = 0
+
+        # slope 게인값 조정
+        self.B_max = 6
+        self.B = (2 * self.B_max) / math.pi
+        self.k = 0.04
         
 
         # 서브스크라이버 설정
@@ -90,22 +96,26 @@ class MotionPlanningNode(Node):
                     x_max = int(detection.bbox.center.position.x + detection.bbox.size.x / 2) # bbox의 우측하단 꼭짓점 x좌표
                     y_min = int(detection.bbox.center.position.y - detection.bbox.size.y / 2) # bbox의 좌측상단 꼭짓점 y좌표
                     y_max = int(detection.bbox.center.position.y + detection.bbox.size.y / 2) # bbox의 우측하단 꼭짓점 y좌표
-
+                    
+                    print(y_max)
                     if y_max < 150:
                         # 신호등 위치에 따른 정지명령 결정
                         self.steering_command = 0 
                         self.left_speed_command = 0 
                         self.right_speed_command = 0
+
         else:
             if self.lane_data is None:
                 self.steering_command = 0
-            else:    
-                if self.lane_data.slope > 0:
-                    self.steering_command =  7
-                elif self.lane_data.slope < 0:
-                    self.steering_command =  -7
-                else:
-                    self.steering_command = 0
+            else:
+                self.steering_command = int(self.B * math.atan(self.k * self.lane_data.slope))
+            # else:    
+            #     if self.lane_data.slope > 0:
+            #         self.steering_command =  5
+            #     elif self.lane_data.slope < 0:
+            #         self.steering_command =  -5
+            #     else:
+            #         self.steering_command = 0
                 
             self.left_speed_command = 100  # 예시 속도 값
             self.right_speed_command = 100  # 예시 속도 값
