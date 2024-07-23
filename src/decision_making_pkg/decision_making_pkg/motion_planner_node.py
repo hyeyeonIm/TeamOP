@@ -51,13 +51,22 @@ class MotionPlanningNode(Node):
         self.left_speed_command = 0
         self.right_speed_command = 0
 
-        # slope 게인값 조정
-        self.B_max = 7.5
-        self.B = (2 * self.B_max) / math.pi
-        self.kp = 0.1
-        self.kd = 0.05
-        self.slope_before = 0
+        # # base
+        # self.B_max = 8
+        # self.B = (2 * self.B_max) / math.pi
+        # self.kp = 0.08
+        # self.kd = 0.05
+        # self.slope_before = 0
         
+        # 1
+        self.B_max = 8
+        self.B = (2 * self.B_max) / math.pi
+        self.kp = 0.08
+        self.kd = 0.05
+        self.steering_before = 0
+
+
+        # 2
 
         # 서브스크라이버 설정
         self.detection_sub = self.create_subscription(DetectionArray, self.sub_detection_topic, self.detection_callback, self.qos_profile)
@@ -100,8 +109,8 @@ class MotionPlanningNode(Node):
                     y_min = int(detection.bbox.center.position.y - detection.bbox.size.y / 2) # bbox의 좌측상단 꼭짓점 y좌표
                     y_max = int(detection.bbox.center.position.y + detection.bbox.size.y / 2) # bbox의 우측하단 꼭짓점 y좌표
                     
-                    print(y_max)
-                    if y_max < 238:
+                    print('y_max : ', y_max)
+                    if y_max < 93:
                         # 신호등 위치에 따른 정지명령 결정
                         self.steering_command = 0 
                         self.left_speed_command = 0 
@@ -112,32 +121,40 @@ class MotionPlanningNode(Node):
                 self.steering_command = 0
             else:    
                 target_point = (self.lane_data.target_x, self.lane_data.target_y) # 차선의 중심점
-                car_center_point = (320, 179) # roi가 잘린 후 차량 앞 범퍼 중앙 위치
+                car_center_point = (340, 179) # roi가 잘린 후 차량 앞 범퍼 중앙 위치
 
                 target_slope = DMFL.calculate_slope_between_points(target_point, car_center_point)
                 
+                # base
+                # self.steering_command = int(self.B * math.atan(self.kp * target_slope - self.kd * (target_slope - self.slope_before)))
+                # self.slope_before = target_slope
 
-                self.steering_command = int(self.B * math.atan(self.kp * target_slope - self.kd * (target_slope - self.slope_before)))
-                self.slope_before = target_slope
+                # 1st control
+                d_error = self.steering_command - self.steering_before
+                if abs(d_error) >= 3:
+                    self.steering_command = int(self.B * math.atan(self.kp * target_slope)) - d_error
+                else:
+                    self.steering_command = int(self.B * math.atan(self.kp * target_slope))
+
+                self.steering_before = self.steering_command
+
+                # 2nd control
+
+
 
                 print(self.steering_command)
+
+                ## 
+                # print(self.steering_command)
                 # if target_slope > 0:
                 #     self.steering_command =  7 # 예시 속도 값 (7이 최대 조향) 
                 # elif target_slope < 0:
                 #     self.steering_command =  -7
                 # else:
                 #     self.steering_command = 0
-            '''
-            # else:    
-            #     if self.lane_data.slope > 0:
-            #         self.steering_command =  5
-            #     elif self.lane_data.slope < 0:
-            #         self.steering_command =  -5
-            #     else:
-            #         self.steering_command = 0
-            ''' 
-            self.left_speed_command = 150  # 예시 속도 값
-            self.right_speed_command = 150  # 예시 속도 값
+
+            self.left_speed_command = 200  # 예시 속도 값
+            self.right_speed_command = 200  # 예시 속도 값
 
 
         # 모션 명령 메시지 생성 및 퍼블리시
