@@ -139,6 +139,24 @@ class MotionPlanningNode(Node):
                 self.steering_before = self.steering_command
 
                 # 2nd control
+                # ### 2번 반대 활성화 함수 + 1번
+                # d_error = self.steering_command - self.steering_before
+
+                # b_max = 9
+                # const_grad_value = 30
+                
+                # const_30 =(1/const_grad_value) * (math.pi/2)
+                # sin_part = math.sin(const_30 * target_slope)
+                # abs_sin_part = abs(math.sin(const_30 * target_slope))
+                # self.steering_command = b_max * sin_part * abs_sin_part
+
+                # if abs(d_error) >= self.kd + 1:
+                #     self.steering_command = self.steering_command - int(self.kd * (d_error/d_error))
+                # else:
+                #     self.steering_command = self.steering_command
+
+                # self.steering_before = self.steering_command
+                # ###
 
 
 
