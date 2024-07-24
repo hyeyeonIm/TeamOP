@@ -69,7 +69,7 @@ class Yolov8InfoExtractor(Node):
             
         grad = CPFL.dominant_gradient(roi_image, theta_limit=70)
         
-        target_point_y = 100
+        target_point_y = 120
         target_point_x = CPFL.get_lane_center(roi_image, detection_height=target_point_y, 
                                             detection_thickness=10, road_gradient=grad, lane_width=300)
         
