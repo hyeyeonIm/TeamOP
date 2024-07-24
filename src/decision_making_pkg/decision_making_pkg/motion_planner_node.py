@@ -62,7 +62,7 @@ class MotionPlanningNode(Node):
         self.B_max = 8
         self.B = (2 * self.B_max) / math.pi
         self.kp = 0.08
-        self.kd = 0.05
+        self.kd = 2
         self.steering_before = 0
 
 
@@ -110,7 +110,7 @@ class MotionPlanningNode(Node):
                     y_max = int(detection.bbox.center.position.y + detection.bbox.size.y / 2) # bbox의 우측하단 꼭짓점 y좌표
                     
                     print('y_max : ', y_max)
-                    if y_max < 93:
+                    if y_max < 85:
                         # 신호등 위치에 따른 정지명령 결정
                         self.steering_command = 0 
                         self.left_speed_command = 0 
@@ -131,8 +131,8 @@ class MotionPlanningNode(Node):
 
                 # 1st control
                 d_error = self.steering_command - self.steering_before
-                if abs(d_error) >= 3:
-                    self.steering_command = int(self.B * math.atan(self.kp * target_slope)) - d_error
+                if abs(d_error) >= self.kp + 1:
+                    self.steering_command = int(self.B * math.atan(self.kp * target_slope)) - int(self.kp * (d_error/d_error))
                 else:
                     self.steering_command = int(self.B * math.atan(self.kp * target_slope))
 
