@@ -61,7 +61,7 @@ class MotionPlanningNode(Node):
         # 1
         self.B_max = 8
         self.B = (2 * self.B_max) / math.pi
-        self.kp = 0.08
+        self.kp = 0.07
         self.kd = 2
         self.steering_before = 0
 
@@ -110,7 +110,7 @@ class MotionPlanningNode(Node):
                     y_max = int(detection.bbox.center.position.y + detection.bbox.size.y / 2) # bbox의 우측하단 꼭짓점 y좌표
                     
                     print('y_max : ', y_max)
-                    if y_max < 85:
+                    if y_max < 154:
                         # 신호등 위치에 따른 정지명령 결정
                         self.steering_command = 0 
                         self.left_speed_command = 0 
@@ -121,7 +121,7 @@ class MotionPlanningNode(Node):
                 self.steering_command = 0
             else:    
                 target_point = (self.lane_data.target_x, self.lane_data.target_y) # 차선의 중심점
-                car_center_point = (340, 179) # roi가 잘린 후 차량 앞 범퍼 중앙 위치
+                car_center_point = (350, 179) # roi가 잘린 후 차량 앞 범퍼 중앙 위치
 
                 target_slope = DMFL.calculate_slope_between_points(target_point, car_center_point)
                 
@@ -131,36 +131,35 @@ class MotionPlanningNode(Node):
 
                 # 1st control
                 d_error = self.steering_command - self.steering_before
-                if abs(d_error) >= self.kp + 1:
-                    self.steering_command = int(self.B * math.atan(self.kp * target_slope)) - int(self.kp * (d_error/d_error))
+                if abs(d_error) >= self.kd + 1:
+                    self.steering_command = int(self.B * math.atan(self.kp * target_slope)) - self.kd * (int)(d_error/d_error)
                 else:
                     self.steering_command = int(self.B * math.atan(self.kp * target_slope))
 
                 self.steering_before = self.steering_command
 
-                # 2nd control
+                # # 2nd control
                 # ### 2번 반대 활성화 함수 + 1번
                 # d_error = self.steering_command - self.steering_before
 
                 # b_max = 9
                 # const_grad_value = 30
-                
+
                 # const_30 =(1/const_grad_value) * (math.pi/2)
                 # sin_part = math.sin(const_30 * target_slope)
                 # abs_sin_part = abs(math.sin(const_30 * target_slope))
-                # self.steering_command = b_max * sin_part * abs_sin_part
+                # # print(sin_part, abs_sin_part)
+                # self.steering_command = int(b_max * sin_part * abs_sin_part)
 
                 # if abs(d_error) >= self.kd + 1:
                 #     self.steering_command = self.steering_command - int(self.kd * (d_error/d_error))
-                # else:
-                #     self.steering_command = self.steering_command
 
                 # self.steering_before = self.steering_command
                 # ###
 
 
 
-                print(self.steering_command)
+                print(self.steering_command, "\t", target_slope)
 
                 ## 
                 # print(self.steering_command)
@@ -171,8 +170,8 @@ class MotionPlanningNode(Node):
                 # else:
                 #     self.steering_command = 0
 
-            self.left_speed_command = 200  # 예시 속도 값
-            self.right_speed_command = 200  # 예시 속도 값
+            self.left_speed_command = 255  # 예시 속도 값
+            self.right_speed_command = 255  # 예시 속도 값
 
 
         # 모션 명령 메시지 생성 및 퍼블리시
